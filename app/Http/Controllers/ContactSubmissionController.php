@@ -3,12 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\SubmissionResource;
-use App\Models\Submission;
 use App\Http\Requests\ContactSubmissionRequest;
-use Illuminate\Support\Facades\Storage;
+use App\Services\ContactService;
 
 class ContactSubmissionController extends Controller
 {
+    /**
+     * The contact service instance.
+     *
+     * @var \App\Services\ContactService
+     */
+    protected $contactService;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param \App\Services\ContactService $contactService
+     * @return void
+     */
+    public function __construct(ContactService $contactService)
+    {
+        $this->contactService = $contactService;
+    }
+
     /**
      * Store a new contact submission.
      *
@@ -17,23 +34,17 @@ class ContactSubmissionController extends Controller
      */
     public function store(ContactSubmissionRequest $request)
     {
-        // Create the submission
-        $submission = Submission::create($request->validated());
+        $submission = $this->contactService->createSubmission(
+            $request->validated(),
+            $request->file('images') ?? [],
+            $request->file('files') ?? []
+        );
 
-        // Handle image uploads
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('images', 'files');
-            }
+        if ($submission) {
+            $submission->load('images', 'files');
+            return new SubmissionResource($submission);
         }
 
-        // Handle file uploads
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $path = $file->store('files', 'files');
-            }
-        }
-
-        return new SubmissionResource($submission);
+        return response()->json(['message' => 'Failed to create submission'], 500);
     }
 }

@@ -10,9 +10,10 @@ class SubmissionResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @return array<string, mixed>
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
         return [
             'id' => $this->id,
@@ -24,6 +25,8 @@ class SubmissionResource extends JsonResource
             'state' => $this->state,
             'zip' => $this->zip,
             'country' => $this->country,
+            'images' => SubmissionImageResource::collection($this->whenLoaded('images')),
+            'files' => SubmissionFileResource::collection($this->whenLoaded('files')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

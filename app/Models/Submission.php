@@ -24,4 +24,20 @@ class Submission extends Model
         'zip',
         'country'
     ];
+
+    /**
+     * Get the images for the submission.
+     */
+    public function images()
+    {
+        return $this->hasMany(SubmissionImage::class);
+    }
+
+    /**
+     * Get the files for the submission.
+     */
+    public function files()
+    {
+        return $this->hasMany(SubmissionFile::class);
+    }
 }

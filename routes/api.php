@@ -33,3 +33,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::group(['middleware' => 'throttle:5,1'], function () {
     Route::post('/contact-submissions', [ContactSubmissionController::class, 'store']);
 });
+
+Route::get('/contact-submissions', [ContactSubmissionController::class, 'index']);
